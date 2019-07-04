@@ -3,7 +3,7 @@
 
 class DebugCamera;
 
-class DebugCameraWrapper : public Component
+class DebugCameraWrapper : public GameObject
 {
 private:
 	// デバッグカメラ

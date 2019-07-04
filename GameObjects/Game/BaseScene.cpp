@@ -13,29 +13,36 @@ using namespace DirectX::SimpleMath;
 // ¶¬
 void BaseScene::Build(GameContext& context)
 {
-	auto debugCamera  = GameObject::Create();
-	debugCamera->AddComponent<DebugCameraWrapper>();
+	auto debugCamera  = std::make_shared<DebugCameraWrapper>();
 	context << debugCamera;
 
-	auto gridFloor = GameObject::Create();
-	gridFloor->AddComponent<GridFloorWrapper>();
+	auto gridFloor = std::make_shared<GridFloorWrapper>();
 	context << gridFloor;
 
-	class BoxBehaviour : public Component
+	class BoxBehaviour : public GeometricObject
 	{
+	public:
+		BoxBehaviour()
+			: GeometricObject([](GameContext& ctx) { return GeometricPrimitive::CreateCube(ctx.GetDR().GetD3DDeviceContext()); })
+		{
+		}
+
 		void Update(GameContext& context)
 		{
-			gameObject->transform->LocalPosition = Vector3::Transform(Vector3::Right, Matrix::CreateRotationY(float(context.GetTimer().GetTotalSeconds()))) * 4;
+			transform->LocalPosition = Vector3::Transform(Vector3::Right, Matrix::CreateRotationY(float(context.GetTimer().GetTotalSeconds()))) * 4;
 		}
 	};
-	auto box = GameObject::Create();
-	box->AddComponent<GeometricObject>([](GameContext& ctx) { return GeometricPrimitive::CreateCube(ctx.GetDR().GetD3DDeviceContext()); });
-	box->AddComponent<BoxBehaviour>();
-	//box->transform->SetPosition(Vector3(2, 0, 0));
+	auto box = std::make_shared<BoxBehaviour>();
 	context << box;
 
-	class SphereBehaviour : public Component
+	class SphereBehaviour : public GeometricObject
 	{
+	public:
+		SphereBehaviour()
+			: GeometricObject([](GameContext& ctx) { return GeometricPrimitive::CreateSphere(ctx.GetDR().GetD3DDeviceContext()); })
+		{
+		}
+
 		void Update(GameContext& context)
 		{
 			auto input = Vector3::Zero;
@@ -58,12 +65,10 @@ void BaseScene::Build(GameContext& context)
 			rotation.Inverse(rotation);
 
 			auto force = Vector3::Transform(input, rotation);
-			gameObject->transform->LocalPosition += force;
+			transform->LocalPosition += force;
 		}
 	};
-	auto sphere = GameObject::Create();
-	sphere->AddComponent<GeometricObject>([](GameContext& ctx) { return GeometricPrimitive::CreateSphere(ctx.GetDR().GetD3DDeviceContext()); });
-	sphere->AddComponent<SphereBehaviour>();
+	auto sphere = std::make_shared<SphereBehaviour>();
 	sphere->transform->SetPosition(Vector3(-1, 0, 3));
 	context << sphere;
 }

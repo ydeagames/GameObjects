@@ -167,7 +167,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Common\DeviceResources.h" />
-    <ClInclude Include="Framework\Component.h" />
     <ClInclude Include="Framework\DebugTools\DebugCamera.h" />
     <ClInclude Include="Framework\DebugTools\DebugCameraWrapper.h" />
     <ClInclude Include="Framework\DebugTools\GridFloor.h" />

@@ -2,7 +2,7 @@
 #include "GameObject.h"
 
 // ゲームオブジェクトコンテナ
-class Scene : public Component
+class Scene
 {
 public:
 	// 子ゲームオブジェクト

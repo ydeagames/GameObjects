@@ -80,9 +80,6 @@
     <ClInclude Include="Framework\DebugTools\DebugCameraWrapper.h">
       <Filter>Framework\DebugTools</Filter>
     </ClInclude>
-    <ClInclude Include="Framework\Component.h">
-      <Filter>Framework</Filter>
-    </ClInclude>
     <ClInclude Include="Framework\GameCamera.h">
       <Filter>Framework</Filter>
     </ClInclude>
