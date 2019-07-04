@@ -65,19 +65,7 @@
     <ClInclude Include="Game\BuildSettings.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="Game\LogoScene.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="Game\PlayScene.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="Game\ResultScene.h">
-      <Filter>Game</Filter>
-    </ClInclude>
     <ClInclude Include="Game\SceneCommons.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="Game\TitleScene.h">
       <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="Framework\DebugTools\GridFloor.h">
@@ -156,19 +144,7 @@
     <ClCompile Include="Game\BuildSettings.cpp">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="Game\LogoScene.cpp">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="Game\PlayScene.cpp">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="Game\ResultScene.cpp">
-      <Filter>Game</Filter>
-    </ClCompile>
     <ClCompile Include="Game\SceneCommons.cpp">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="Game\TitleScene.cpp">
       <Filter>Game</Filter>
     </ClCompile>
     <ClCompile Include="Framework\DebugTools\GridFloorWrapper.cpp">
