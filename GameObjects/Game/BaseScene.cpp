@@ -22,6 +22,9 @@ void BaseScene::Build(GameContext& context)
 	class BoxBehaviour : public GeometricObject
 	{
 	public:
+		float delta = 0;
+
+	public:
 		BoxBehaviour()
 			: GeometricObject([](GameContext& ctx) { return GeometricPrimitive::CreateCube(ctx.GetDR().GetD3DDeviceContext()); })
 		{
@@ -29,11 +32,15 @@ void BaseScene::Build(GameContext& context)
 
 		void Update(GameContext& context)
 		{
-			transform->LocalPosition = Vector3::Transform(Vector3::Right, Matrix::CreateRotationY(float(context.GetTimer().GetTotalSeconds()))) * 4;
+			transform->LocalPosition = Vector3::Transform(Vector3::Right, Matrix::CreateRotationY(float(context.GetTimer().GetTotalSeconds()) + delta)) * 4;
 		}
 	};
-	auto box = std::make_shared<BoxBehaviour>();
-	context << box;
+	for (int i = 0; i < 10; i++)
+	{
+		auto box = std::make_shared<BoxBehaviour>();
+		box->delta = .2f * i;
+		context << box;
+	}
 
 	class SphereBehaviour : public GeometricObject
 	{
@@ -54,18 +61,24 @@ void BaseScene::Build(GameContext& context)
 				input.z -= 1;
 			if (Input::GetKey(Keyboard::Keys::S) || Input::GetKey(Keyboard::Keys::Down))
 				input.z += 1;
-			if (Input::GetKey(Keyboard::Keys::Q) || Input::GetKey(Keyboard::Keys::LeftShift))
-				input.y -= 1;
-			if (Input::GetKey(Keyboard::Keys::E) || Input::GetKey(Keyboard::Keys::Space))
-				input.y += 1;
 
 			Vector3 s_, t_;
 			Quaternion rotation;
 			context.GetCamera().view.Decompose(s_, rotation, t_);
 			rotation.Inverse(rotation);
 
-			auto force = Vector3::Transform(input, rotation);
-			transform->LocalPosition += force;
+			input = Vector3::Transform(input, rotation);
+			input.y = 0;
+			input.Normalize();
+
+			if (Input::GetKey(Keyboard::Keys::Q) || Input::GetKey(Keyboard::Keys::LeftShift))
+				input.y -= 1;
+			if (Input::GetKey(Keyboard::Keys::E) || Input::GetKey(Keyboard::Keys::Space))
+				input.y += 1;
+
+			input.Normalize();
+
+			transform->LocalPosition += input * .2f;
 		}
 	};
 	auto sphere = std::make_shared<SphereBehaviour>();
