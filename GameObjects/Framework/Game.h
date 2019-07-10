@@ -131,7 +131,7 @@ public:
 	// オブジェクト追加
 	GameContext& operator<<(const std::shared_ptr<GameObject>& obj)
 	{
-		GetScene().gameObjects.push_back(obj);
+		GetScene().Add(obj);
 		return *this;
 	}
 
