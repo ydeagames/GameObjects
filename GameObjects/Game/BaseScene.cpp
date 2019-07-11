@@ -27,7 +27,7 @@ void BaseScene::Build(GameContext& context)
 
 	public:
 		SphereBehaviour()
-			: GeometricObject([](GameContext& ctx) { return GeometricPrimitive::CreateSphere(ctx.GetDR().GetD3DDeviceContext()); })
+			: GeometricObject([](GameContext& ctx) { return GeometricPrimitive::CreateSphere(ctx.GetDR().GetD3DDeviceContext()); }, Vector4(Colors::Gold))
 		{
 		}
 
@@ -56,12 +56,14 @@ void BaseScene::Build(GameContext& context)
 			if (Input::GetKeyDown(Keyboard::Keys::Space))
 			{
 				auto sphere = std::make_shared<SphereBehaviour>();
-				sphere->vel = Vector3(Random::Range(-1.f, 1.f), 0, Random::Range(0.f, -1.f)) * .5f;
+				sphere->transform->LocalPosition = transform->LocalPosition;
+				sphere->vel = Vector3(Random::Range(-1.f, 1.f), 0, Random::Range(0.f, -1.f)) * .2f;
 				context << sphere;
 			}
 		}
 	};
 
 	auto box = std::make_shared<BoxBehaviour>();
+	box->transform->LocalPosition = Vector3(0.f, 0.f, 5.f);
 	context << box;
 }

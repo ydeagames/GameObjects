@@ -15,7 +15,7 @@ private:
 
 public:
 	// コンストラクタ
-	GeometricObject(const std::function<std::unique_ptr<DirectX::GeometricPrimitive>(GameContext& context)>& generator, DirectX::SimpleMath::Color color = DirectX::SimpleMath::Color(DirectX::Colors::Gray))
+	GeometricObject(const std::function<std::unique_ptr<DirectX::GeometricPrimitive>(GameContext& context)>& generator, DirectX::SimpleMath::Vector4 color = DirectX::SimpleMath::Vector4(DirectX::Colors::Gray))
 		: m_geometricPrimitiveGenerator(generator)
 		, m_color(color)
 	{
