@@ -63,7 +63,6 @@ void DebugCamera::update()
 	DirectX::SimpleMath::Matrix rt = rotY * rotX;
 
 	DirectX::SimpleMath::Vector3 eye(0.0f, 0.0f, 1.0f);
-	DirectX::SimpleMath::Vector3 target(0.0f, 0.0f, 0.0f);
 	DirectX::SimpleMath::Vector3 up(0.0f, 1.0f, 0.0f);
 
 	eye = DirectX::SimpleMath::Vector3::Transform(eye, rt.Invert());
@@ -71,9 +70,8 @@ void DebugCamera::update()
 	up = DirectX::SimpleMath::Vector3::Transform(up, rt.Invert());
 
 	m_eye = eye;
-	m_target = target;
 
-	m_view = DirectX::SimpleMath::Matrix::CreateLookAt(eye, target, up);
+	m_view = DirectX::SimpleMath::Matrix::CreateLookAt(m_target + eye, m_target, up);
 }
 
 // 行列の生成

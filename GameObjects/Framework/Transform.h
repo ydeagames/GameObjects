@@ -1,5 +1,16 @@
 #pragma once
 
+//template<typename T>
+//class Property
+//{
+//	void operator=(const DirectX::SimpleMath::Vector3& value)
+//	{
+//	}
+//	operator DirectX::SimpleMath::Vector3()
+//	{
+//	}
+//};
+//
 // Transformクラス
 class Transform
 {
@@ -7,9 +18,9 @@ public:
 	// コンストラクタ
 	Transform::Transform()
 		: parent(nullptr)
-		, localPosition(DirectX::SimpleMath::Vector3(0.f, 0.f, 0.f))
-		, localRotation(DirectX::SimpleMath::Vector3(0.f, 0.f, 0.f))
-		, localScale(DirectX::SimpleMath::Vector3(1.f, 1.f, 1.f))
+		, localPosition(DirectX::SimpleMath::Vector3::Zero)
+		, localRotation(DirectX::SimpleMath::Quaternion::Identity)
+		, localScale(DirectX::SimpleMath::Vector3::One)
 	{
 	}
 
@@ -94,9 +105,9 @@ public:
 	DirectX::SimpleMath::Matrix GetMatrix() const
 	{
 		return
-			DirectX::SimpleMath::Matrix::CreateTranslation(localPosition) *
-			DirectX::SimpleMath::Matrix::CreateFromQuaternion(localRotation) *
 			DirectX::SimpleMath::Matrix::CreateScale(localScale) *
+			DirectX::SimpleMath::Matrix::CreateFromQuaternion(localRotation) *
+			DirectX::SimpleMath::Matrix::CreateTranslation(localPosition) *
 			(parent != nullptr ? parent->GetMatrix() : DirectX::SimpleMath::Matrix::Identity);
 	}
 };

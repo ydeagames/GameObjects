@@ -118,9 +118,12 @@ void BaseScene::Build(GameContext& context)
 
 				//auto euler = QuatToEuler(rotation);
 				//transform->LocalEulerAngles = euler;
-				transform->localRotation = rotation;
+				auto flat = Vector3::Transform(Vector3::Forward, rotation);
+				flat.y = 0;
+				auto flatRotation = Quaternion::CreateFromRotationMatrix(Matrix::CreateWorld(Vector3::Zero, flat, Vector3::Up));
+				transform->localRotation = flatRotation;
 
-				auto force = input * .5f;
+				auto force = input * .1f;
 				transform->localPosition += force;
 			}
 
@@ -128,7 +131,7 @@ void BaseScene::Build(GameContext& context)
 			{
 				auto sphere = std::make_shared<SphereBehaviour>();
 				sphere->transform->localPosition = transform->localPosition;
-				sphere->vel = Vector3(Random::Range(-1.f, 1.f), 0, Random::Range(0.f, -1.f)) * .2f;
+				sphere->vel = Vector3::Transform(Vector3::Forward, transform->localRotation) * .1f;
 				context << sphere;
 			}
 		}
