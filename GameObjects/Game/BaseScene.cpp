@@ -20,14 +20,16 @@ void BaseScene::Build(GameContext& context)
 	auto gridFloor = std::make_shared<GridFloorWrapper>();
 	context << gridFloor;
 
-	class SphereBehaviour : public GeometricObject
+	class BulletBehaviour : public GeometricObject
 	{
 	public:
 		Vector3 vel;
+		std::shared_ptr<Transform> m_playerTransform;
 
 	public:
-		SphereBehaviour()
+		BulletBehaviour(const std::shared_ptr<Transform>& playerTransform)
 			: GeometricObject([](GameContext& ctx) { return GeometricPrimitive::CreateSphere(ctx.GetDR().GetD3DDeviceContext()); }, Vector4(Colors::Gold))
+			, m_playerTransform(playerTransform)
 		{
 		}
 
@@ -35,59 +37,21 @@ void BaseScene::Build(GameContext& context)
 		{
 			transform->localPosition += vel;
 
-			if (!transform->localPosition.InBounds(Vector3(5, 5, 5)))
+			if (!BoundingSphere(m_playerTransform->localPosition, 5).Contains(transform->localPosition))
 				Destroy(*this);
 		}
 	};
 
-	class BoxBehaviour : public GeometricObject
+	class PlayerBehaviour : public GeometricObject
 	{
 	private:
 		std::shared_ptr<DebugCameraWrapper> m_debugCamera;
-
-		static Vector3 QuatToEuler(const Quaternion& quat)
-		{
-			float sqw = quat.w * quat.w;
-			float sqx = quat.x * quat.x;
-			float sqy = quat.y * quat.y;
-			float sqz = quat.z * quat.z;
-
-			float rotxrad = atan2f(2.0f * (quat.y * quat.z + quat.x * quat.w), (-sqx - sqy + sqz + sqw));
-			float rotyrad = asinf(-2.0f * (quat.x * quat.z - quat.y * quat.w));
-			float rotzrad = atan2f(2.0f * (quat.x * quat.y + quat.z * quat.w), (sqx - sqy - sqz + sqw));
-
-			return Vector3(rotxrad, rotyrad, rotzrad);
-		}
-
-		static Vector3 ToEulerAngles(const Quaternion& q)
-		{
-			Vector3 angles;
-
-			// roll (x-axis rotation)
-			float sinr_cosp = +2.0f * (q.w * q.x + q.y * q.z);
-			float cosr_cosp = +1.0f - 2.0f * (q.x * q.x + q.y * q.y);
-			angles.x = atan2f(sinr_cosp, cosr_cosp);
-
-			// pitch (y-axis rotation)
-			float sinp = +2.0f * (q.w * q.y - q.z * q.x);
-			if (fabsf(sinp) >= 1)
-				angles.y = copysign(XM_PI / 2, sinp); // use 90 degrees if out of range
-			else
-				angles.y = asinf(sinp);
-
-			// yaw (z-axis rotation)
-			float siny_cosp = +2.0f * (q.w * q.z + q.x * q.y);
-			float cosy_cosp = +1.0f - 2.0f * (q.y * q.y + q.z * q.z);
-			angles.z = atan2f(siny_cosp, cosy_cosp);
-
-			return angles;
-		}
 
 	public:
 		float delta = 0;
 
 	public:
-		BoxBehaviour(const std::shared_ptr<DebugCameraWrapper>& debugCamera)
+		PlayerBehaviour(const std::shared_ptr<DebugCameraWrapper>& debugCamera)
 			: GeometricObject([](GameContext& ctx) { return GeometricPrimitive::CreateTeapot(ctx.GetDR().GetD3DDeviceContext()); })
 			, m_debugCamera(debugCamera)
 		{
@@ -129,15 +93,31 @@ void BaseScene::Build(GameContext& context)
 
 			if (Input::GetKeyDown(Keyboard::Keys::Space))
 			{
-				auto sphere = std::make_shared<SphereBehaviour>();
-				sphere->transform->localPosition = transform->localPosition;
-				sphere->vel = Vector3::Transform(Vector3::Forward, transform->localRotation) * .1f;
-				context << sphere;
+				auto bullet = std::make_shared<BulletBehaviour>(transform);
+				bullet->transform->localPosition = transform->localPosition;
+				bullet->vel = Vector3::Transform(Vector3::Forward, transform->localRotation) * .1f;
+				context << bullet;
 			}
 		}
 	};
 
-	auto box = std::make_shared<BoxBehaviour>(debugCamera);
-	box->transform->localPosition = Vector3(0.f, 0.f, 5.f);
-	context << box;
+	auto player = std::make_shared<PlayerBehaviour>(debugCamera);
+	player->transform->localPosition = Vector3(0.f, 0.f, 5.f);
+	context << player;
+
+	class CircleBehaviour : public GeometricObject
+	{
+		std::shared_ptr<Transform> m_playerTransform;
+
+	public:
+		CircleBehaviour(const std::shared_ptr<Transform>& playerTransform)
+			: GeometricObject([](GameContext& ctx) { return GeometricPrimitive::CreateTorus(ctx.GetDR().GetD3DDeviceContext(), 10, 0.1f); }, Vector4(Colors::Red))
+			, m_playerTransform(playerTransform)
+		{
+			transform = playerTransform;
+		}
+	};
+
+	auto circle = std::make_shared<CircleBehaviour>(player->transform);
+	context << circle;
 }
