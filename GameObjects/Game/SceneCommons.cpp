@@ -13,7 +13,7 @@ void GeometricObject::Initialize(GameContext& context)
 void GeometricObject::Render(GameContext& context)
 {
 	// ƒWƒIƒƒgƒŠ•`‰æ
-	m_pGeometricPrimitive->Draw(transform->GetMMatrix(), context.GetCamera().view, context.GetCamera().projection, m_color);
+	m_pGeometricPrimitive->Draw(transform->GetMatrix(), context.GetCamera().view, context.GetCamera().projection, m_color);
 }
 
 void FontObject::Initialize(GameContext& context)
@@ -25,7 +25,7 @@ void FontObject::Initialize(GameContext& context)
 void FontObject::Render(GameContext& context)
 {
 	m_spriteBatch->Begin(SpriteSortMode_Deferred, context.GetStates().AlphaBlend());
-	m_spriteFont->DrawString(m_spriteBatch.get(), m_text.c_str(), transform->GetPosition());
+	m_spriteFont->DrawString(m_spriteBatch.get(), m_text.c_str(), Vector3(transform->position));
 	m_spriteBatch->End();
 }
 
@@ -33,5 +33,5 @@ void Rigidbody::Update(GameContext& context)
 {
 	auto elapsed = float(context.GetTimer().GetElapsedSeconds());
 	velocity += acceleration * elapsed;
-	transform->LocalPosition += velocity * elapsed;
+	transform->localPosition += velocity * elapsed;
 }

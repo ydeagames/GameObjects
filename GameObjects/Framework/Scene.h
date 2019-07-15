@@ -6,9 +6,9 @@ class Scene
 {
 public:
 	// 子ゲームオブジェクト
-	std::vector<std::shared_ptr<GameObject>> gameObjects;
+	std::list<std::shared_ptr<GameObject>> gameObjects;
 	// 子ゲームオブジェクト
-	std::vector<std::shared_ptr<GameObject>> addingObjects;
+	std::list<std::shared_ptr<GameObject>> addingObjects;
 
 public:
 	void Add(const std::shared_ptr<GameObject>& obj);

@@ -47,6 +47,11 @@ public: // アクセッサ
 	{
 		return m_target;
 	}
+	// デバッグカメラの注視点取得
+	void setTargetPosition(DirectX::SimpleMath::Vector3& vec)
+	{
+		m_target = vec;
+	}
 
 private: // サブ処理
 	void motion(int x, int y);

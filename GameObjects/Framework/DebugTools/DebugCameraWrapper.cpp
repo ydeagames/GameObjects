@@ -20,6 +20,7 @@ void DebugCameraWrapper::Initialize(GameContext & context)
 
 void DebugCameraWrapper::Update(GameContext & context)
 {
+	m_pDebugCamera->setTargetPosition(transform->localPosition);
 	m_pDebugCamera->update();
 	context.GetCamera().view = m_pDebugCamera->getViewMatrix();
 }
