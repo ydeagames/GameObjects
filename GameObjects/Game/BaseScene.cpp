@@ -111,7 +111,7 @@ void BaseScene::Build(GameContext& context)
 
 	public:
 		CircleBehaviour(const std::shared_ptr<Transform>& playerTransform)
-			: GeometricObject([](GameContext& ctx) { return GeometricPrimitive::CreateTorus(ctx.GetDR().GetD3DDeviceContext(), 10, 0.1f); }, Vector4(Colors::Red))
+			: GeometricObject([](GameContext& ctx) { return GeometricPrimitive::CreateCylinder(ctx.GetDR().GetD3DDeviceContext(), 0.01f, 10); }, Vector4(Color(1, 1, 1, .2f)))
 			, m_playerTransform(playerTransform)
 		{
 			transform = playerTransform;
