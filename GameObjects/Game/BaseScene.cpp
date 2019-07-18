@@ -4,6 +4,7 @@
 #include <Framework/SceneManager.h>
 #include <Framework/DebugTools/DebugCameraWrapper.h>
 #include <Framework/DebugTools/GridFloorWrapper.h>
+#include <Framework/Scene.h>
 #include <Utilities/Input.h>
 #include <Utilities/Random.h>
 #include <Utilities/picojson.h>
@@ -37,10 +38,36 @@ void BaseScene::Build(GameContext& context)
 		{
 			transform->localPosition += vel;
 
-			if (!BoundingSphere(m_playerTransform->localPosition, 5).Contains(transform->localPosition))
-				Destroy(*this);
+			if (!BoundingBox(Vector3::Zero, Vector3(10, 5, 5)).Contains(transform->localPosition))
+				vel.z *= -1;
+			else if (!BoundingBox(Vector3::Zero, Vector3(5, 5, 10)).Contains(transform->localPosition))
+				vel.x *= -1;
+			else if (!BoundingBox(Vector3::Zero, Vector3(5, 5, 5)).Contains(transform->localPosition))
+				vel *= -1;
 		}
 	};
+
+	class BulletGenerator : public GameObject
+	{
+		float time = 0;
+
+		void Update(GameContext& context)
+		{
+			time += float(context.GetTimer().GetElapsedSeconds());
+			if (time > .5f)
+			{
+				time = 0;
+
+				auto bullet = std::make_shared<BulletBehaviour>(transform);
+				bullet->transform->localPosition = Vector3(Random::Range(-4.f, 4.f), 0, Random::Range(-4.f, 4.f));
+				bullet->vel = Vector3::Transform(Vector3::Forward, Matrix::CreateFromAxisAngle(Vector3::UnitY, Random::Range(0.f, XM_2PI))) * .1f;
+				context << bullet;
+			}
+		}
+	};
+
+	auto gen = std::make_shared<BulletGenerator>();
+	context << gen;
 
 	class PlayerBehaviour : public GeometricObject
 	{
@@ -93,10 +120,10 @@ void BaseScene::Build(GameContext& context)
 
 			if (Input::GetKeyDown(Keyboard::Keys::Space))
 			{
-				auto bullet = std::make_shared<BulletBehaviour>(transform);
-				bullet->transform->localPosition = transform->localPosition;
-				bullet->vel = Vector3::Transform(Vector3::Forward, transform->localRotation) * .1f;
-				context << bullet;
+				auto bounding = BoundingSphere(transform->localPosition, 2.5f);
+				for (auto& obj : context.GetScene().gameObjects)
+					if (std::dynamic_pointer_cast<BulletBehaviour>(obj) && bounding.Contains(obj->transform->localPosition))
+						Destroy(*obj);
 			}
 		}
 	};
@@ -111,7 +138,7 @@ void BaseScene::Build(GameContext& context)
 
 	public:
 		CircleBehaviour(const std::shared_ptr<Transform>& playerTransform)
-			: GeometricObject([](GameContext& ctx) { return GeometricPrimitive::CreateCylinder(ctx.GetDR().GetD3DDeviceContext(), 0.01f, 10); }, Vector4(Color(1, 1, 1, .2f)))
+			: GeometricObject([](GameContext& ctx) { return GeometricPrimitive::CreateCylinder(ctx.GetDR().GetD3DDeviceContext(), 0.01f, 5); }, Vector4(Color(1, 1, 1, .2f)))
 			, m_playerTransform(playerTransform)
 		{
 			transform = playerTransform;
