@@ -1,16 +1,27 @@
 #pragma once
 
-//template<typename T>
-//class Property
-//{
-//	void operator=(const DirectX::SimpleMath::Vector3& value)
-//	{
-//	}
-//	operator DirectX::SimpleMath::Vector3()
-//	{
-//	}
-//};
-//
+template<typename T>
+struct Property
+{
+	std::function<T()> Getter;
+	std::function<void(const T& value)> Setter;
+	Property(
+		const std::function<T()>& Getter,
+		const std::function<void(const T&)>& Setter)
+		: Getter(Getter)
+		, Setter(Setter)
+	{}
+	void operator=(const T& value) { Setter(value); }
+	operator T() const { return Getter(); }
+	void operator+=(const T& value) { Setter(Getter() + value); }
+	void operator-=(const T& value) { Setter(Getter() - value); }
+	void operator*=(const T& value) { Setter(Getter() * value); }
+	void operator/=(const T& value) { Setter(Getter() / value); }
+	void operator%=(const T& value) { Setter(Getter() % value); }
+	T operator*() const { return Getter(); }
+	T operator->() const { return Getter(); }
+};
+
 // Transformクラス
 class Transform
 {
@@ -32,65 +43,76 @@ public:
 	// ローカルスケール
 	DirectX::SimpleMath::Vector3 localScale;
 
-	struct
+	Property<DirectX::SimpleMath::Vector3> position
 	{
-		Transform* transform;
-		void operator=(const DirectX::SimpleMath::Vector3& value)
+		[&]()
 		{
-			if (transform->parent)
-				transform->localPosition = DirectX::SimpleMath::Vector3::Transform(value, transform->parent->GetMatrix());
+			if (parent)
+				return DirectX::SimpleMath::Vector3::Transform(localPosition, parent->GetMatrix().Invert());
 			else
-				transform->localPosition = value;
-		}
-		operator DirectX::SimpleMath::Vector3()
+				return localPosition;
+		},
+		[&](const auto& value)
 		{
-			if (transform->parent)
-				return DirectX::SimpleMath::Vector3::Transform(transform->localPosition, transform->parent->GetMatrix().Invert());
+			if (parent)
+				localPosition = DirectX::SimpleMath::Vector3::Transform(value, parent->GetMatrix());
 			else
-				return transform->localPosition;
+				localPosition = value;
 		}
-	} position{ this };
+	};
 
-	struct
+	Property<DirectX::SimpleMath::Quaternion> rotation
 	{
-		Transform* transform;
-		void operator=(const DirectX::SimpleMath::Quaternion& value)
+		[&]()
 		{
-			if (transform->parent)
-				transform->localRotation = value * DirectX::SimpleMath::Quaternion::CreateFromRotationMatrix(transform->parent->GetMatrix());
+			if (parent)
+				return localRotation * DirectX::SimpleMath::Quaternion::CreateFromRotationMatrix(parent->GetMatrix().Invert());
 			else
-				transform->localRotation = value;
-		}
-		operator DirectX::SimpleMath::Quaternion()
+				return localRotation;
+		},
+		[&](const auto& value)
 		{
-			if (transform->parent)
-				return transform->localRotation * DirectX::SimpleMath::Quaternion::CreateFromRotationMatrix(transform->parent->GetMatrix().Invert());
+			if (parent)
+				localRotation = value * DirectX::SimpleMath::Quaternion::CreateFromRotationMatrix(parent->GetMatrix());
 			else
-				return transform->localRotation;
+				localRotation = value;
 		}
-	} rotation{ this };
+	};
 
-	struct
+	Property<DirectX::SimpleMath::Vector3> lossyScale
 	{
-		Transform* transform;
-		void operator=(const DirectX::SimpleMath::Vector3& value)
+		[&]()
 		{
-			if (transform->parent)
-				transform->localScale = DirectX::SimpleMath::Vector3::Transform(value, transform->parent->GetMatrix());
+			if (parent)
+			{
+				DirectX::SimpleMath::Vector3 parentPosition;
+				DirectX::SimpleMath::Quaternion parentRotation;
+				DirectX::SimpleMath::Vector3 parentScale;
+				parent->GetMatrix().Decompose(parentScale, parentRotation, parentPosition);
+				auto mat = DirectX::SimpleMath::Matrix::CreateScale(parentScale) * DirectX::SimpleMath::Matrix::CreateFromQuaternion(parentRotation);
+				return DirectX::SimpleMath::Vector3::Transform(localScale, mat.Invert());
+			}
 			else
-				transform->localScale = value;
-		}
-		operator DirectX::SimpleMath::Vector3()
+				return localScale;
+		},
+		[&](const auto& value)
 		{
-			if (transform->parent)
-				return DirectX::SimpleMath::Vector3::Transform(transform->localScale, transform->parent->GetMatrix().Invert());
+			if (parent)
+			{
+				DirectX::SimpleMath::Vector3 parentPosition;
+				DirectX::SimpleMath::Quaternion parentRotation;
+				DirectX::SimpleMath::Vector3 parentScale;
+				parent->GetMatrix().Decompose(parentScale, parentRotation, parentPosition);
+				auto mat = DirectX::SimpleMath::Matrix::CreateScale(parentScale) * DirectX::SimpleMath::Matrix::CreateFromQuaternion(parentRotation);
+				localScale = DirectX::SimpleMath::Vector3::Transform(value, mat);
+			}
 			else
-				return transform->localScale;
+				localScale = value;
 		}
-	} lossyScale{ this };
+	};
 
 	const Transform* parent;
-	void sparent(const Transform* value)
+	void SetParent(const Transform* value)
 	{
 		DirectX::SimpleMath::Vector3 worldPosition = position;
 		DirectX::SimpleMath::Quaternion worldRotation = rotation;
