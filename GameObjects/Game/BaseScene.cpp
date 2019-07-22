@@ -15,7 +15,7 @@ using namespace DirectX::SimpleMath;
 // ê∂ê¨
 void BaseScene::Build(GameContext& context)
 {
-	auto debugCamera  = std::make_shared<DebugCameraWrapper>();
+	auto debugCamera = std::make_shared<DebugCameraWrapper>();
 	context << debugCamera;
 
 	auto gridFloor = std::make_shared<GridFloorWrapper>();
@@ -121,9 +121,10 @@ void BaseScene::Build(GameContext& context)
 			if (Input::GetKeyDown(Keyboard::Keys::Space))
 			{
 				auto bounding = BoundingSphere(transform->localPosition, 2.5f);
-				for (auto& obj : context.GetScene().gameObjects)
-					if (std::dynamic_pointer_cast<BulletBehaviour>(obj) && bounding.Contains(obj->transform->localPosition))
-						Destroy(*obj);
+				for (auto& layer : context.GetScene().gameObjects)
+					for (auto& obj : layer)
+						if (std::dynamic_pointer_cast<BulletBehaviour>(obj) && bounding.Contains(obj->transform->localPosition))
+							Destroy(*obj);
 			}
 		}
 	};

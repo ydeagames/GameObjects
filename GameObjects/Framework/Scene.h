@@ -6,7 +6,7 @@ class Scene
 {
 public:
 	// 子ゲームオブジェクト
-	std::list<std::shared_ptr<GameObject>> gameObjects;
+	std::vector<std::list<std::shared_ptr<GameObject>>> gameObjects{ size_t(Layer::NUM_LAYER) };
 	// 子ゲームオブジェクト
 	std::list<std::shared_ptr<GameObject>> addingObjects;
 

@@ -5,11 +5,23 @@
 class GameContext;
 class Component;
 
+namespace Layer
+{
+	enum Enum
+	{
+		LAYER_NONE,
+		LAYER_BALL,
+		LAYER_PLAYER,
+		NUM_LAYER,
+	};
+};
+
 // ゲームオブジェクト
 class GameObject
 {
 public:
 	std::shared_ptr<Transform> transform;
+	Layer::Enum layer = Layer::LAYER_NONE;
 	bool destroyed;
 
 public:

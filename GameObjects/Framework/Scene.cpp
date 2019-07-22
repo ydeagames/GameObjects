@@ -8,31 +8,39 @@ void Scene::Add(const std::shared_ptr<GameObject>& obj)
 
 void Scene::Initialize(GameContext& context)
 {
-	for (auto& object : gameObjects)
-		object->Initialize(context);
+	for (auto& layer : gameObjects)
+		for (auto& object : layer)
+			object->Initialize(context);
 }
 
 void Scene::Update(GameContext& context)
 {
 	for (auto& object : addingObjects)
+	{
 		object->Initialize(context);
-	gameObjects.splice(gameObjects.end(), std::move(addingObjects));
+		gameObjects[object->layer].emplace_back(std::move(object));
+	}
+	addingObjects.clear();
 
-	for (auto& object : gameObjects)
-		object->Update(context);
+	for (auto& layer : gameObjects)
+		for (auto& object : layer)
+			object->Update(context);
 
-	gameObjects.remove_if(std::mem_fn(&GameObject::destroyed));
+	for (auto& layer : gameObjects)
+		layer.remove_if(std::mem_fn(&GameObject::destroyed));
 }
 
 void Scene::Render(GameContext& context)
 {
-	for (auto& object : gameObjects)
-		object->Render(context);
+	for (auto& layer : gameObjects)
+		for (auto& object : layer)
+			object->Render(context);
 }
 
 void Scene::Finalize(GameContext& context)
 {
-	for (auto& object : gameObjects)
-		object->Finalize(context);
+	for (auto& layer : gameObjects)
+		for (auto& object : layer)
+			object->Finalize(context);
 }
 
