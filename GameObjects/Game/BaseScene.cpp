@@ -85,7 +85,7 @@ void BaseScene::Build(GameContext& context)
 				for (auto& obj1i : col.first)
 					for (auto& obj2i : col.second)
 					{
-						float radius = .8f;
+						float radius = .5f;
 						if (obj1i < obj2i && Vector3::DistanceSquared(obj1i->transform->localPosition, obj2i->transform->localPosition) < (radius + radius) * (radius + radius))
 						{
 							auto obj1 = std::dynamic_pointer_cast<BulletBehaviour>(obj1i);
@@ -114,8 +114,8 @@ void BaseScene::Build(GameContext& context)
 
 								// ‘¬“x‚É‰ÁŽZ
 								auto w = 2;// obj1->m_objectWeight + obj2->m_objectWeight;
-								auto w1 = 1;// obj1->m_objectWeight / w;
-								auto w2 = 1;// obj2->m_objectWeight / w;
+								auto w1 = 1 / w;// obj1->m_objectWeight / w;
+								auto w2 = 1 / w;// obj2->m_objectWeight / w;
 								obj1->vel = -(subvelHorizontal * -.5f + subvelVertical * w1);
 								obj2->vel = +(subvelHorizontal * -.5f + subvelVertical * w2);
 								//obj1->m_objectPos += obj1->m_objectVel;
@@ -130,6 +130,8 @@ void BaseScene::Build(GameContext& context)
 					}
 		}
 	};
+	auto col = std::make_shared<CollisionController>();
+	context << col;
 
 	class PlayerBehaviour : public GeometricObject
 	{
